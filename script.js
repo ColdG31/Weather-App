@@ -1,15 +1,23 @@
 document.getElementById('location-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const location = document.getElementById('location-input').value;
-    getWeatherData(location);
+    document.getElementById('content').classList.add('hidden'); // Hide content
+    document.getElementById('loading-spinner').classList.remove('hidden'); // Show spinner
+    setTimeout(() => {
+        getWeatherData(location);
+    }, 1000); // 2-second delay
 });
 
 document.getElementById('current-location-btn').addEventListener('click', function() {
     if (navigator.geolocation) {
+        document.getElementById('content').classList.add('hidden'); // Hide content
+        document.getElementById('loading-spinner').classList.remove('hidden'); // Show spinner
         navigator.geolocation.getCurrentPosition(position => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            getWeatherDataByCoordinates(lat, lon);
+            setTimeout(() => {
+                getWeatherDataByCoordinates(lat, lon);
+            }, 1000); // 2-second delay
         }, () => {
             alert('Unable to retrieve your location');
         });
@@ -17,6 +25,18 @@ document.getElementById('current-location-btn').addEventListener('click', functi
         alert('Geolocation is not supported by your browser');
     }
 });
+
+document.getElementById('save-preferences').addEventListener('click', function() {
+    const units = document.getElementById('units').value;
+    localStorage.setItem('units', units);
+    alert('Preferences saved!');
+});
+
+function loadPreferences() {
+    const units = localStorage.getItem('units') || 'metric';
+    document.getElementById('units').value = units;
+    return units;
+}
 
 async function getWeatherData(location) {
     const apiKey = 'a7fbe7efd2e3984169f6a41f32d1c405';
@@ -35,8 +55,10 @@ async function getWeatherData(location) {
         displayDailyForecast(forecastWeatherData);
 
         document.getElementById('content').classList.remove('hidden'); // Show content
+        document.getElementById('loading-spinner').classList.add('hidden'); // Hide spinner
     } catch (error) {
         console.error('Error fetching weather data:', error);
+        document.getElementById('loading-spinner').classList.add('hidden'); // Hide spinner in case of error
     }
 }
 
@@ -57,8 +79,10 @@ async function getWeatherDataByCoordinates(lat, lon) {
         displayDailyForecast(forecastWeatherData);
 
         document.getElementById('content').classList.remove('hidden'); // Show content
+        document.getElementById('loading-spinner').classList.add('hidden'); // Hide spinner
     } catch (error) {
         console.error('Error fetching weather data:', error);
+        document.getElementById('loading-spinner').classList.add('hidden'); // Hide spinner in case of error
     }
 }
 
